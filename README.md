@@ -1,156 +1,113 @@
-# Rank-One Model Editing (ROME)
+# The Dark Subspace: ROME Edits Succeed Outside the Model's Linear Concept Geometry
 
-This repository provides an implementation of Rank-One Model Editing (ROME) on auto-regressive transformers (GPU-only).
-We currently support OpenAI's GPT-2 XL (1.5B) and EleutherAI's GPT-J (6B). The release of a 20B GPT-like model from EleutherAI is expected soon; we hope to support it ASAP.
+This repository contains code and experiments for investigating the relationship between knowledge editing (ROME, MEND) and the Linear Representation Hypothesis (LRH) in large language models. All experiments use GPT-2 XL (1.5B parameters).
 
-Feel free to open an issue if you find any problems; we are actively developing this repository and will monitor tickets closely.
+**Built on top of the [ROME](https://github.com/kmeng01/rome) codebase by [Meng et al. (NeurIPS 2022)](https://arxiv.org/abs/2202.05262).** The original ROME implementation, evaluation framework, baselines, causal tracing, and dataset infrastructure are theirs. This project extends that codebase with an LRH analysis module (`lrh/`), experiment scripts (`scripts/`), an r-ROME reimplementation (`rrome/`), and the paper source (`paper/`).
 
-[![Colab ROME Demo](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kmeng01/rome/blob/main/notebooks/rome.ipynb)
+## Key Findings
 
-<p align="center">
-    <img src="https://rome.baulab.info/images/eiftower-crop.svg" alt="causal tracing GIF" width="425px" />
-</p>
+1. ROME's edit vectors cluster strongly by concept (97% LDA accuracy) but are nearly **orthogonal** to independently extracted concept directions (cosine similarity < 0.08)
+2. The causal signal lives in a **dark subspace** orthogonal to all identifiable geometric structure, carrying 50--54% of the edit's efficacy (96% if scaled), while the concept component carries 0%
+3. This orthogonality generalises across editing methods: **MEND** shows the same pattern despite using a different mechanism and editing different layers
 
-## Table of Contents
-1. [Installation](#installation)
-2. [Causal Tracing](#causal-tracing)
-3. [Rank-One Model Editing (ROME)](#rank-one-model-editing-rome-1)
-4. [CounterFact](#counterfact)
-5. [Evaluation](#evaluation)
-    * [Running the Full Evaluation Suite](#running-the-full-evaluation-suite)
-    * [Integrating New Editing Methods](#integrating-new-editing-methods)
-6. [How to Cite](#how-to-cite)
+## Repository Structure
+
+```
+rome/                   # Original ROME algorithm (Meng et al.)
+lrh/                    # LRH analysis module (new)
+    config.py           # LRHConfig dataclass
+    extraction.py       # Activation extraction
+    concept_directions.py  # Mean-diff, logistic, DAS directions
+    probes.py           # Linear probe training/eval
+    rome_lrh_bridge.py  # Core bridge between ROME and LRH
+    lre.py              # Linear Relational Embeddings
+    metrics.py          # Alignment and subspace metrics
+    datasets.py         # CounterFact grouped by relation
+    visualization.py    # Publication-quality plots
+    experiments/        # Three main experiment runners
+rrome/                  # r-ROME reimplementation (Hase et al. fix)
+scripts/                # All experiment scripts (exp1-exp8)
+paper/                  # Paper LaTeX source
+baselines/              # MEND, FT, KN, EFK (from original ROME repo)
+experiments/            # Evaluation framework (from original ROME repo)
+notebooks/              # Interactive analysis notebooks
+hparams/                # Hyperparameter configs (ROME, LRH, baselines)
+util/                   # nethook, globals, generate (from original ROME repo)
+dsets/                  # Dataset loaders (from original ROME repo)
+```
+
+## Experiments
+
+| Script | Description |
+|--------|-------------|
+| `exp1_linear_structure.py` | Probe accuracy across layers; concept direction extraction |
+| `exp1b_shared_component.py` | Edit vector alignment with concept directions; v_mean transfer |
+| `exp2_edit_geometry.py` | PERMANOVA, LDA clustering, LRE comparison |
+| `exp3_layer_propagation.py` | Perturbation tracking across layers |
+| `exp4_causal_decomposition.py` | Decompose v_mean into concept, LDA, and dark residual components |
+| `exp4_lda_scaling.py` | Scaling analysis of decomposition components |
+| `exp5_layer_sweep.py` | Edit efficacy vs alignment across layers |
+| `exp6_gate_geometry.py` | Gate vector (u) concept structure analysis |
+| `exp7_edit_specificity.py` | Entity-level vs concept-level edit selectivity |
+| `exp8_mend_comparison.py` | Cross-method generalisation with MEND |
 
 ## Installation
 
-We recommend `conda` for managing Python, CUDA, and PyTorch-related dependencies, and `pip` for everything else. To get started, simply install `conda` and run:
 ```bash
-./scripts/setup_conda.sh
+# ROME environment (full functionality)
+bash scripts/setup_conda.sh
+
+# LRH-only environment (lighter)
+RECIPE=lrh ENV_NAME=rome-lrh bash scripts/setup_conda.sh
 ```
 
-## Causal Tracing
+Requires `conda` and a CUDA-capable GPU. GPT-2 XL requires ~6GB VRAM.
 
-[`notebooks/causal_trace.ipynb`](notebooks/causal_trace.ipynb) demonstrates Causal Tracing, which can be modified to apply tracing to the processing of any statement.
+## Usage
 
-<p align="center">
-    <img src="https://thevisible.net/u/davidbau/romeweb/small-fast-ct-animation.gif" alt="causal tracing GIF" width="550px" />
-</p>
-
-## Rank-One Model Editing (ROME)
-
-<!-- We provide a simple interactive notebook demonstrating ROME. -->
-
-<!-- ### Second-Moment Key Statistics
-
-**warning this is probably wrong; fixing later.**
-
-First, key statistics must be collected. The `rome` package contains a `layer_stats` module for computing and caching key statistics. See [rome/layer_stats.py](rome/layer_stats.py) for additional flags, but the basic logic can be executed with the following commands:
-
-GPT-2 XL:
-```bash
-python -m rome.layer_stats --layer_num=17 --model_name=gpt2-xl
-```
-
-GPT-J:
-```bash
-python -m rome.layer_stats --layer_num=10 --model_name=EleutherAI/gpt-j-6B
-```
-
-### ROME Model Rewriting -->
-
-[`notebooks/rome.ipynb`](notebooks/rome.ipynb) demonstrates ROME. The API is simple; one simply has to specify a *requested rewrite* of the following form:
-
+### Run a ROME edit
 ```python
+from rome import ROMEHyperParams, apply_rome_to_model
+from util.globals import HPARAMS_DIR
+
+hparams = ROMEHyperParams.from_json(HPARAMS_DIR / "ROME" / "gpt2-xl.json")
 request = {
     "prompt": "{} plays the sport of",
     "subject": "LeBron James",
-    "target_new": {
-        "str": "football"
-    }
+    "target_new": {"str": "football"},
 }
+model_edited, orig_weights = apply_rome_to_model(model, tok, [request], hparams)
 ```
 
-Several similar examples are included in the notebook.
-
-## CounterFact
-
-Details coming soon!
-
-## Evaluation
-
-See [`baselines/`](baselines/) for a description of the available baselines.
-
-### Running the Full Evaluation Suite
-
-[`experiments/evaluate.py`](experiments/evaluate.py) can be used to evaluate any method in [`baselines/`](baselines/).
-To get started (e.g. using ROME on GPT-2 XL), run:
+### Run an LRH experiment
 ```bash
-python3 -m experiments.evaluate \
-    --alg_name=ROME \
-    --model_name=gpt2-xl \
-    --hparams_fname=gpt2-xl.json
+python scripts/exp1_linear_structure.py
+python scripts/exp4_causal_decomposition.py
 ```
 
-Results from each run are stored at `results/<method_name>/run_<run_id>` in a specific format:
-```bash
-results/
-|__ ROME/
-    |__ run_<run_id>/
-        |__ params.json
-        |__ case_0.json
-        |__ case_1.json
-        |__ ...
-        |__ case_10000.json
+### Run the full LRH analysis pipeline
+```python
+from lrh import LRHConfig, full_rome_lrh_analysis
+config = LRHConfig(model_name="gpt2-xl")
+analysis = full_rome_lrh_analysis(model, tok, request, rome_hparams, config)
 ```
 
-To summarize the results, you can use [`experiments/summarize.py`](experiments/summarize.py):
-```bash
-python3 -m experiments.summarize --dir_name=ROME --runs=run_<run_id>
-```
+## Acknowledgements
 
-Running `python3 -m experiments.evaluate -h` or `python3 -m experiments.summarize -h` provides details about command-line flags.
-
-### Integrating New Editing Methods
-
-<!-- Say you have a new method `X` and want to benchmark it on CounterFact. Here's a checklist for evaluating `X`:
-- The public method that evaluates a model on each CounterFact record is [`compute_rewrite_quality`](experiments/py/eval_utils.py); see [the source code](experiments/py/eval_utils.py) for details.
-- In your evaluation script, you should call `compute_rewrite_quality` once with an unedited model and once with a model that has been edited with `X`. Each time, the function returns a dictionary. -->
-
-Say you have a new method `X` and want to benchmark it on CounterFact. To integrate `X` with our runner:
-- Subclass [`HyperParams`](util/hparams.py) into `XHyperParams` and specify all hyperparameter fields. See [`ROMEHyperParameters`](rome/rome_hparams.py) for an example implementation.
-- Create a hyperparameters file at `hparams/X/gpt2-xl.json` and specify some default values. See [`hparams/ROME/gpt2-xl.json`](hparams/ROME/gpt2-xl.json) for an example.
-- Define a function `apply_X_to_model` which accepts several parameters and returns (i) the rewritten model and (ii) the original weight values for parameters that were edited (in the dictionary format `{weight_name: original_weight_value}`). See [`rome/rome_main.py`](rome/rome_main.py) for an example.
-- Add `X` to `ALG_DICT` in [`experiments/evaluate.py`](experiments/evaluate.py) by inserting the line `"X": (XHyperParams, apply_X_to_model)`.
-
-Finally, run the main scripts:
-```bash
-python3 -m experiments.evaluate \
-    --alg_name=X \
-    --model_name=gpt2-xl \
-    --hparams_fname=gpt2-xl.json
-
-python3 -m experiments.summarize --dir_name=X --runs=run_<run_id>
-```
-
-### Note on Cross-Platform Compatibility
-
-We currently only support methods that edit autoregressive HuggingFace models using the PyTorch backend. We are working on a set of general-purpose methods (usable on e.g. TensorFlow and without HuggingFace) that will be released soon.
-
-<!-- 
-Each method is customizable through a set of hyperparameters. For ROME, they are defined in `rome/hparams.py`. At runtime, you must specify a configuration of hyperparams through a `.json` file located in `hparams/<method_name>`. Check out [`hparams/ROME/default.json`](hparams/ROME/default.json) for an example.
-
-At runtime, you must specify two command-line arguments: the method name, and the filename of the hyperparameters `.json` file.
-```bash
-python3 -m experiments.evaluate --alg_name=ROME --hparams_fname=default.json
-```
-
-Running the following command will yield `dict` run summaries:
-```bash
-python3 -m experiments/summarize --alg_name=ROME --run_name=run_001
-``` -->
+This project is built entirely on top of the **ROME** codebase by Kevin Meng, David Bau, Alex Andonian, and Yonatan Belinkov. The original repository is available at [github.com/kmeng01/rome](https://github.com/kmeng01/rome) and is licensed under the MIT License. All original code, evaluation infrastructure, dataset loaders, causal tracing, and baseline implementations are theirs.
 
 ## How to Cite
 
+If you use the LRH analysis from this repository:
+```bibtex
+@article{elcock2025dark,
+  title={The Dark Subspace: {ROME} Edits Succeed Outside the Model's Linear Concept Geometry},
+  author={James Elcock},
+  year={2025}
+}
+```
+
+If you use the ROME implementation, please also cite the original work:
 ```bibtex
 @article{meng2022locating,
   title={Locating and Editing Factual Associations in {GPT}},
@@ -160,3 +117,7 @@ python3 -m experiments/summarize --alg_name=ROME --run_name=run_001
   year={2022}
 }
 ```
+
+## License
+
+MIT License (see [LICENSE](LICENSE)). Original ROME code copyright (c) 2022 Kevin Meng.
