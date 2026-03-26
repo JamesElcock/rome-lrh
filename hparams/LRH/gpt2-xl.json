@@ -1,0 +1,36 @@
+{
+    "model_name": "gpt2-xl",
+    "device": "cuda",
+    "seed": 42,
+
+    "probe_layers": [0, 5, 10, 15, 17, 20, 25, 30, 35, 40, 47],
+    "rome_target_layer": 17,
+
+    "probe_train_size": 500,
+    "probe_test_size": 200,
+    "probe_lr": 1e-3,
+    "probe_epochs": 100,
+    "probe_weight_decay": 1e-2,
+    "probe_batch_size": 64,
+
+    "n_contrastive_pairs": 200,
+    "direction_method": "mean_diff",
+
+    "lre_rank": 1,
+    "lre_n_samples": 500,
+    "lre_subject_layer": 8,
+    "lre_object_layer": 36,
+    "lre_ridge_alpha": 1.0,
+
+    "n_concept_directions": 10,
+
+    "residual_module_tmp": "transformer.h.{}",
+    "mlp_module_tmp": "transformer.h.{}.mlp",
+    "mlp_proj_module_tmp": "transformer.h.{}.mlp.c_proj",
+    "attn_module_tmp": "transformer.h.{}.attn",
+    "ln_f_module": "transformer.ln_f",
+    "lm_head_module": "transformer.wte",
+
+    "extraction_batch_size": 32,
+    "token_strategy": "subject_last"
+}

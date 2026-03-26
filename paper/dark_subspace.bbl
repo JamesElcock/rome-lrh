@@ -1,0 +1,114 @@
+\begin{thebibliography}{17}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Adelani et~al.(2021)Adelani, Abbott, Neubig, D’souza, Kreutzer,
+  Lignos, Palen-Michel, Buzaaba, Rijhwani, Ruder,
+  et~al.]{adelani2021masakhaner}
+David~Ifeoluwa Adelani, Jade Abbott, Graham Neubig, Daniel D’souza, Julia
+  Kreutzer, Constantine Lignos, Chester Palen-Michel, Happy Buzaaba, Shruti
+  Rijhwani, Sebastian Ruder, et~al.
+\newblock Masakhaner: Named entity recognition for african languages.
+\newblock \emph{Transactions of the Association for Computational Linguistics},
+  9:\penalty0 1116--1131, 2021.
+
+\bibitem[Belinkov(2022)]{belinkov2022probing}
+Yonatan Belinkov.
+\newblock Probing classifiers: Promises, shortcomings, and advances.
+\newblock \emph{Computational Linguistics}, 48\penalty0 (1):\penalty0 207--219,
+  2022.
+
+\bibitem[Burns et~al.(2022)Burns, Ye, Klein, and
+  Steinhardt]{burns2022discovering}
+Collin Burns, Haotian Ye, Dan Klein, and Jacob Steinhardt.
+\newblock Discovering latent knowledge in language models without supervision.
+\newblock \emph{arXiv preprint arXiv:2212.03827}, 2022.
+
+\bibitem[De~Cao et~al.(2021)De~Cao, Aziz, and Titov]{decao2021editing}
+Nicola De~Cao, Wilker Aziz, and Ivan Titov.
+\newblock Editing factual knowledge in language models.
+\newblock In \emph{Proceedings of EMNLP}, 2021.
+
+\bibitem[Engels et~al.(2024)Engels, Michaud, Liao, Gurnee, and
+  Tegmark]{engels2024not}
+Joshua Engels, Eric~J Michaud, Isaac Liao, Wes Gurnee, and Max Tegmark.
+\newblock Not all language model features are one-dimensionally linear.
+\newblock \emph{arXiv preprint arXiv:2405.14860}, 2024.
+
+\bibitem[Geva et~al.(2021)Geva, Schuster, Berant, and
+  Levy]{geva2021transformer}
+Mor Geva, Roei Schuster, Jonathan Berant, and Omer Levy.
+\newblock Transformer feed-forward layers are key-value memories.
+\newblock In \emph{Proceedings of EMNLP}, 2021.
+
+\bibitem[Gurnee and Tegmark(2023)]{gurnee2023language}
+Wes Gurnee and Max Tegmark.
+\newblock Language models represent space and time.
+\newblock \emph{arXiv preprint arXiv:2310.02207}, 2023.
+
+\bibitem[Hase et~al.(2024)Hase, Bansal, Kim, and Ghandeharioun]{hase2024does}
+Peter Hase, Mohit Bansal, Been Kim, and Asma Ghandeharioun.
+\newblock Does localization inform editing? surprising differences in
+  causality-based localization vs.\ knowledge editing in language models.
+\newblock \emph{arXiv preprint arXiv:2403.07175}, 2024.
+
+\bibitem[Hernandez et~al.(2024)Hernandez, Li, and
+  Andreas]{hernandez2024linearity}
+Evan Hernandez, Belinda Li, and Jacob Andreas.
+\newblock Linearity of relation decoding in transformer language models.
+\newblock In \emph{International Conference on Learning Representations}, 2024.
+
+\bibitem[Marks and Tegmark(2024)]{marks2024geometry}
+Samuel Marks and Max Tegmark.
+\newblock The geometry of truth: Emergent linear structure in large language
+  model representations of true/false statements.
+\newblock \emph{arXiv preprint arXiv:2310.06824}, 2024.
+
+\bibitem[Meng et~al.(2022)Meng, Bau, Mitchell, and Yogatama]{meng2022locating}
+Kevin Meng, David Bau, Alex Mitchell, and Dani Yogatama.
+\newblock Locating and editing factual associations in {GPT}.
+\newblock In \emph{Advances in Neural Information Processing Systems}, 2022.
+
+\bibitem[Meng et~al.(2023)Meng, Sharma, Bau, and Yogatama]{meng2022mass}
+Kevin Meng, Sen Sharma, David Bau, and Dani Yogatama.
+\newblock Mass-editing memory in a transformer.
+\newblock In \emph{International Conference on Learning Representations}, 2023.
+
+\bibitem[Mikolov et~al.(2013)Mikolov, Yih, and Zweig]{mikolov2013linguistic}
+Tomas Mikolov, Wen-tau Yih, and Geoffrey Zweig.
+\newblock Linguistic regularities in continuous space word representations.
+\newblock In \emph{Proceedings of NAACL-HLT}, 2013.
+
+\bibitem[Mitchell et~al.(2022)Mitchell, Lin, Bosselut, Finn, and
+  Manning]{mitchell2022fast}
+Eric Mitchell, Charles Lin, Antoine Bosselut, Chelsea Finn, and Christopher~D.
+  Manning.
+\newblock Fast model editing at scale.
+\newblock In \emph{International Conference on Learning Representations}, 2022.
+
+\bibitem[Park et~al.(2023)Park, Choe, and Veitch]{lrhorig}
+Kiho Park, Yo~Joong Choe, and Victor Veitch.
+\newblock The linear representation hypothesis and the geometry of large
+  language models.
+\newblock \emph{arXiv preprint arXiv:2311.03658}, 2023.
+
+\bibitem[Petroni et~al.(2019)Petroni, Rockt{\"a}schel, Riedel, Lewis, Bakhtin,
+  Wu, and Miller]{petroni2019language}
+Fabio Petroni, Tim Rockt{\"a}schel, Sebastian Riedel, Patrick Lewis, Anton
+  Bakhtin, Yuxiang Wu, and Alexander Miller.
+\newblock Language models as knowledge bases?
+\newblock In \emph{Proceedings of the 2019 conference on empirical methods in
+  natural language processing and the 9th international joint conference on
+  natural language processing (EMNLP-IJCNLP)}, pages 2463--2473, 2019.
+
+\bibitem[Roberts et~al.(2020)Roberts, Raffel, and Shazeer]{roberts2020much}
+Adam Roberts, Colin Raffel, and Noam Shazeer.
+\newblock How much knowledge can you pack into the parameters of a language
+  model?
+\newblock In \emph{Proceedings of the 2020 conference on empirical methods in
+  natural language processing (EMNLP)}, pages 5418--5426, 2020.
+
+\end{thebibliography}
