@@ -79,13 +79,13 @@ request = {
 model_edited, orig_weights = apply_rome_to_model(model, tok, [request], hparams)
 ```
 
-### Run an LRH experiment
+### Run a ROME-LRH experiment
 ```bash
 python scripts/exp1_linear_structure.py
 python scripts/exp4_causal_decomposition.py
 ```
 
-### Run the full LRH analysis pipeline
+### Run the a single ROME-LRH analysis pipeline
 ```python
 from lrh import LRHConfig, full_rome_lrh_analysis
 config = LRHConfig(model_name="gpt2-xl")
@@ -96,16 +96,6 @@ analysis = full_rome_lrh_analysis(model, tok, request, rome_hparams, config)
 
 This project is built entirely on top of the **ROME** codebase by Kevin Meng, David Bau, Alex Andonian, and Yonatan Belinkov. The original repository is available at [github.com/kmeng01/rome](https://github.com/kmeng01/rome) and is licensed under the MIT License. All original code, evaluation infrastructure, dataset loaders, causal tracing, and baseline implementations are theirs.
 
-## How to Cite
-
-If you use the LRH analysis from this repository:
-```bibtex
-@article{elcock2025dark,
-  title={The Dark Subspace: {ROME} Edits Succeed Outside the Model's Linear Concept Geometry},
-  author={James Elcock},
-  year={2025}
-}
-```
 
 If you use the ROME implementation, please also cite the original work:
 ```bibtex
